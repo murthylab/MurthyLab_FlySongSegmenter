@@ -29,7 +29,7 @@ bufferLen =  2e3;
 noiseSample = findNoise(recording, bufferLen);
 oneSong = recording; % same for single-channel data
 [sInf, pInf, wInf, bInf, Song] = postProcessSegmentation(sInf, recording, oneSong, noiseSample);
-pulseTimesAutomatic = pInf.wc/Fs;
+pulseTimesAutomatic = pInf.wc/Fs;%s
 %% plot results
 clf
 T = (1:length(oneSong))/Fs;
@@ -48,34 +48,36 @@ set(gca, 'YTick', 0:2, 'YTickLabel', {'silence/noise', 'sine','pulse'})
 
 linkaxes(gcas, 'x')
 %% identify common events
-pulseTimes = [pulseTimesManual; pulseTimesAutomatic];
-pulseGroup = [ones(size(pulseTimesManual)); 2*ones(size(pInf.wc))];
-pulseGroupLabel = {'manual', 'automatic'}
+% pulseTimes = [pulseTimesManual; pulseTimesAutomatic];
+% pulseGroup = [ones(size(pulseTimesManual)); 2*ones(size(pInf.wc))];
+% pulseGroupLabel = {'manual', 'automatic'}
 
-% pool all pulses
-sortIdx = argsort(pulseTimes);
-pulseTimes = pulseTimes(sortIdx);
-pulseGroup = pulseGroup(sortIdx);
+% % pool all pulses
+% sortIdx = argsort(pulseTimes);
+% pulseTimes = pulseTimes(sortIdx);
+% pulseGroup = pulseGroup(sortIdx);
 
-pulseTimes = pulseTimes(1:500);
-pulseGroup = pulseGroup(1:500);
-% go through pulses and pulses within +/- jitter ms
-jitter = 5/1000;%ms
-cnt = 1;
-pulseId = nan(size(pulseTimes));
-pulseId(1) = 1;
-for pul = 2:length(pulseTimes)
-   if pulseTimes(pul)-jitter>pulseTimes(pul-1)
-      cnt = cnt+1;
-   end
-   pulseId(pul) = cnt;
-end
+% pulseTimes = pulseTimes(1:500);
+% pulseGroup = pulseGroup(1:500);
+% % go through pulses and pulses within +/- jitter ms
+% jitter = 5/1000;%ms
+% cnt = 1;
+% pulseId = nan(size(pulseTimes));
+% pulseId(1) = 1;
+% for pul = 2:length(pulseTimes)
+%    if pulseTimes(pul)-jitter>pulseTimes(pul-1)
+%       cnt = cnt+1;
+%    end
+%    pulseId(pul) = cnt;
+% end
 
-ids = max(pulseId);
-eventMat = zeros(ids, max(pulseGroup));
-for g = 1:max(pulseGroup)
-   eventMat(pulseId(pulseGroup==g), g) = 1;
-end
+% ids = max(pulseId);
+% eventMat = zeros(ids, max(pulseGroup));
+% for g = 1:max(pulseGroup)
+%    eventMat(pulseId(pulseGroup==g), g) = 1;
+% end
+tolerance = 5/1000;%s
+[confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance)
 %%
 fprintf('\n')
 fprintf('detected %d/%d pulses\n', length(pulseTimesAutomatic), length(pulseTimesManual))
