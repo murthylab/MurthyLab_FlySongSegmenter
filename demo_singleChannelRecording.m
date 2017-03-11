@@ -1,17 +1,22 @@
 cc()
 addpath(genpath('src'))
 %% load data
-load('dat/PS_20130625111709_ch10.mat');
-load('dat/PS_20130625111709_ch10manual.mat', 'pulseTimes');
-minPulseTime = 30;%s
-maxPulseTime = 120;%s
-
-pulseTimes(pulseTimes<minPulseTime | pulseTimes>maxPulseTime)=[]; % cut to speedup demo
-pulseTimesManual = pulseTimes-minPulseTime;
+% CantonS recording from Stern (2014)
+load('dat/PS_20130625111709_ch10.mat'); 
+% hand-annotated pulse times for that recording from Kyriacou et al. (2017)
+load('dat/PS_20130625111709_ch10manual.mat', 'pulseTimes'); 
 Fs = Data.fs; %Hz
-%%
+channels = size(recording, 2); % recording is time x channels
+
+% cut recording to the part that is hand-annotated and shorten to speed up
+% processing for this demo
+minPulseTime = 30;%s
+maxPulseTime = 120;%s or max(pulseTimes)
+pulseTimes(pulseTimes<minPulseTime | pulseTimes>maxPulseTime)=[];
+pulseTimesManual = pulseTimes-minPulseTime;
 recording = Data.d(minPulseTime*Fs:maxPulseTime*Fs,:);
-channels = size(recording, 2);
+
+%% plot raw data
 T = (1:size(recording,1))/Fs;
 subplot(311)
 plot(T, recording)
@@ -19,70 +24,53 @@ xlabel('time [ms]')
 ylabel('voltage [V]')
 axis('tight')
 drawnow
-%% process each channel
+
+%% process each channel - detect sine and pulse
 for chn = 1:channels
    [sInf(chn).nLevel, sInf(chn).winSine, sInf(chn).pulseInfo, sInf(chn).pulseInfo2, sInf(chn).pcndInfo] = ...
       segmentSong(recording(:,chn), 'params.m');
 end
+
 %% post process
+% automatically identify recording of duration `bufferLen` samples that does not
+% contain song for estimating the noise floor in the recording
 bufferLen =  2e3;
 noiseSample = findNoise(recording, bufferLen);
+
+% clean up pulses, identify bouts etc.
 oneSong = recording; % same for single-channel data
 [sInf, pInf, wInf, bInf, Song] = postProcessSegmentation(sInf, recording, oneSong, noiseSample);
 pulseTimesAutomatic = pInf.wc/Fs;%s
+
 %% plot results
 clf
 T = (1:length(oneSong))/Fs;
 subplot(3,1,1:2)
-plot(T, oneSong)
+plot(T, oneSong, 'k')
 hold on
 plot(pulseTimesAutomatic, ones(size(pulseTimesAutomatic))/5,'.','MarkerSize', 12)
 plot(pulseTimesManual, ones(size(pulseTimesManual))/5+0.05, '.', 'MarkerSize',12)
 axis('tight')
-set(gca,'YLim', [-0.5 0.5], 'YTick', [0.2 0.25], 'YTickLabel', {'automatic', 'manual'})
+set(gca,'YLim', [-0.4 0.4], 'YTick', [0.2 0.25], 'YTickLabel', {'automatic', 'manual'})
 
 subplot(313)
-plot(T, bInf.Mask);
+plot(T, bInf.Mask, 'k');
 axis('tight')
 set(gca, 'YTick', 0:2, 'YTickLabel', {'silence/noise', 'sine','pulse'})
-
+xlabel('time [ms]')
+set(gcas, 'Box','off','Color','none','TickDir','out')
 linkaxes(gcas, 'x')
-%% identify common events
-% pulseTimes = [pulseTimesManual; pulseTimesAutomatic];
-% pulseGroup = [ones(size(pulseTimesManual)); 2*ones(size(pInf.wc))];
-% pulseGroupLabel = {'manual', 'automatic'}
 
-% % pool all pulses
-% sortIdx = argsort(pulseTimes);
-% pulseTimes = pulseTimes(sortIdx);
-% pulseGroup = pulseGroup(sortIdx);
-
-% pulseTimes = pulseTimes(1:500);
-% pulseGroup = pulseGroup(1:500);
-% % go through pulses and pulses within +/- jitter ms
-% jitter = 5/1000;%ms
-% cnt = 1;
-% pulseId = nan(size(pulseTimes));
-% pulseId(1) = 1;
-% for pul = 2:length(pulseTimes)
-%    if pulseTimes(pul)-jitter>pulseTimes(pul-1)
-%       cnt = cnt+1;
-%    end
-%    pulseId(pul) = cnt;
-% end
-
-% ids = max(pulseId);
-% eventMat = zeros(ids, max(pulseGroup));
-% for g = 1:max(pulseGroup)
-%    eventMat(pulseId(pulseGroup==g), g) = 1;
-% end
+%% compare automatic and manual segmentation
+% identify pulse times in the manual and automatic data correspoding to the
+% same pulse in the recording with a jitte of `tolerance` seconds
 tolerance = 5/1000;%s
-[confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance)
-%%
-fprintf('\n')
-fprintf('detected %d/%d pulses\n', length(pulseTimesAutomatic), length(pulseTimesManual))
-fprintf('   true positives %d (p=%1.2f)\n',  sum(eventMat(:,1)==1 & eventMat(:,2)==1), mean(eventMat(:,1)==1 & eventMat(:,2)==1))
-fprintf('   false negatives %d (p=%1.2f)\n', sum(eventMat(:,1)==1 & eventMat(:,2)==0), mean(eventMat(:,1)==1 & eventMat(:,2)==0))
-fprintf('   true negative %d (p=%1.2f) (not really meaningful in this context)\n',   sum(eventMat(:,1)==0 & eventMat(:,2)==0), mean(eventMat(:,1)==0 & eventMat(:,2)==0))
-fprintf('   false positives %d (p=%1.2f)\n', sum(eventMat(:,1)==0 & eventMat(:,2)==1), mean(eventMat(:,1)==0 & eventMat(:,2)==1))
+[confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance);
+confMatNorm = confMat./sum(confMat,1);
 
+fprintf('\n')
+fprintf('Detected %d/%d pulses:\n', sum(eventMat(:,2)==1), sum(eventMat(:,1)==1))
+fprintf('   - true positives %d (p=%1.2f of all manually annotated pulses)\n',  sum(eventMat(:,1)==1 & eventMat(:,2)==1), sum(eventMat(:,1)==1 & eventMat(:,2)==1)./sum(eventMat(:,1)==1))
+fprintf('   - false negatives %d (p=%1.2f of all manually annotated pulses)\n', sum(eventMat(:,1)==1 & eventMat(:,2)==0), sum(eventMat(:,1)==1 & eventMat(:,2)==0)./sum(eventMat(:,1)==1))
+fprintf('   - false positives %d (p=%1.2f of all automatically called pulses)\n', sum(eventMat(:,1)==0 & eventMat(:,2)==1), sum(eventMat(:,1)==0 & eventMat(:,2)==1)./sum(eventMat(:,2)==1))
+fprintf('   - true negatives %d (p=%1.2f, not meaningful in this context)\n',   sum(eventMat(:,1)==0 & eventMat(:,2)==0), sum(eventMat(:,1)==0 & eventMat(:,2)==0)./sum(eventMat(:,1)==0))

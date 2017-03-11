@@ -1,10 +1,11 @@
-function [noiseSample, noiseIdxRange] = estimateNoiseAutomatic(data, bufferLen)
-% [mNoiseSamp, noiseIdxRange] = estimateNoiseAutomatic(data, bufferLen)
-% uses a heuristic to detect a stretch of lenght bufferLen that has no song
-% on any channel - may not work well for dense recordings.
+function [noiseSample, noiseIdxRange] = findNoise(data, bufferLen)
+% [mNoiseSamp, noiseIdxRange] = findNoise(data, bufferLen)
+%
+% uses a heuristic to detect a stretch of length bufferLen w/o song
+% on all channels - may not work well for very dense recordings.
 % ARGS:
-%  data - T x channels
-%  bufferLen - length in samples of the noise sample to return (OPTIONAL - defaults to 10000);
+%  data - time x channels
+%  bufferLen - duration of the noise to find in samples (OPTIONAL - defaults to 10000);
 % RETURNS:
 %  noiseSample   - bufferLen x channels 
 %  noiseIdxRange - start and end samples
