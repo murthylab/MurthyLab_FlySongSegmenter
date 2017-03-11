@@ -1,5 +1,5 @@
-cc()
 addpath(genpath('src'))
+cc()
 %% load data
 load('dat/161118_1541bin');
 Fs = 10000;
@@ -13,7 +13,7 @@ xlabel('time [ms]')
 ylabel('voltage [V]')
 axis('tight')
 drawnow
-%% preprocess (if necessary)
+%% segment song in each channel
 for chn = 1:channels
    fprintf('segmenting channel %d.\n', chn)
    [sInf(chn).nLevel, sInf(chn).winSine, sInf(chn).pulseInfo, sInf(chn).pulseInfo2, sInf(chn).pcndInfo] = ...

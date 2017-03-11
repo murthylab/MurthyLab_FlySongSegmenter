@@ -1,12 +1,10 @@
-cc()
 addpath(genpath('src'))
+cc()
 %% load data
 % CantonS recording from Stern (2014)
 load('dat/PS_20130625111709_ch10.mat'); 
 % hand-annotated pulse times for that recording from Kyriacou et al. (2017)
 load('dat/PS_20130625111709_ch10manual.mat', 'pulseTimes'); 
-Fs = Data.fs; %Hz
-channels = size(recording, 2); % recording is time x channels
 
 % cut recording to the part that is hand-annotated and shorten to speed up
 % processing for this demo
@@ -14,7 +12,10 @@ minPulseTime = 30;%s
 maxPulseTime = 120;%s or max(pulseTimes)
 pulseTimes(pulseTimes<minPulseTime | pulseTimes>maxPulseTime)=[];
 pulseTimesManual = pulseTimes-minPulseTime;
+
+Fs = Data.fs; %Hz
 recording = Data.d(minPulseTime*Fs:maxPulseTime*Fs,:);
+channels = size(recording, 2); % recording is time x channels
 
 %% plot raw data
 T = (1:size(recording,1))/Fs;
