@@ -78,9 +78,9 @@ for g = 1:max(pulseGroup)
 end
 %%
 fprintf('\n')
-fprintf('manual detected %d pulses, automatic detected %d pulses\n', length(pulseTimesManual), length(pulseTimesAutomatic))
-fprintf('false negatives %1.2f\n', mean(eventMat(:,1)==1 & eventMat(:,2)==0))
-fprintf('true negative %1.2f (not really meaningful)\n',   mean(eventMat(:,1)==0 & eventMat(:,2)==0))
-fprintf('true positives %1.2f\n',  mean(eventMat(:,1)==1 & eventMat(:,2)==1))
-fprintf('false positives %1.2f\n', mean(eventMat(:,1)==0 & eventMat(:,2)==1))
+fprintf('detected %d/%d pulses\n', length(pulseTimesAutomatic), length(pulseTimesManual))
+fprintf('   true positives %d (p=%1.2f)\n',  sum(eventMat(:,1)==1 & eventMat(:,2)==1), mean(eventMat(:,1)==1 & eventMat(:,2)==1))
+fprintf('   false negatives %d (p=%1.2f)\n', sum(eventMat(:,1)==1 & eventMat(:,2)==0), mean(eventMat(:,1)==1 & eventMat(:,2)==0))
+fprintf('   true negative %d (p=%1.2f) (not really meaningful in this context)\n',   sum(eventMat(:,1)==0 & eventMat(:,2)==0), mean(eventMat(:,1)==0 & eventMat(:,2)==0))
+fprintf('   false positives %d (p=%1.2f)\n', sum(eventMat(:,1)==0 & eventMat(:,2)==1), mean(eventMat(:,1)==0 & eventMat(:,2)==1))
 
