@@ -231,7 +231,7 @@ regTest = [];
 for i = 1:size(stEn,1)
    regTest = [regTest;[stEn(i,1):750:stEn(i,2)-850]'; stEn(i,2)-650];
 end
-moveOn = 0;s
+moveOn = 0;
 while moveOn == 0
    moveOn = 1;
    remPul = find(pul2rem);
