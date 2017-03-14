@@ -24,13 +24,14 @@ subplot(3,1,1:2)
 plot(T, recording)
 hold on
 plot(pulseTimesManual, ones(size(pulseTimesManual))/5+0.05, '.', 'MarkerSize',12)
-xlabel('time [ms]')
+xlabel('time [s]')
 ylabel('voltage [V]')
 title('recording trace with manually annotated pulses')
 axis('tight')
 drawnow
 
 %% process recording - detect sine and pulse
+chn = 1;
 [sInf(chn).nLevel, sInf(chn).winSine, sInf(chn).pulseInfo, sInf(chn).pulseInfo2, sInf(chn).pcndInfo] = ...
    segmentSong(recording(:,chn), 'params.m');
 
@@ -60,7 +61,7 @@ subplot(313)
 plot(T, bInf.Mask, 'k');
 axis('tight')
 set(gca, 'YTick', 0:2, 'YTickLabel', {'silence/noise', 'sine','pulse'})
-xlabel('time [ms]')
+xlabel('time [s]')
 set(gcas, 'Box','off','Color','none','TickDir','out')
 linkaxes(gcas, 'x')
 
