@@ -2,14 +2,14 @@ addpath(genpath('src'))
 cc()
 %% load data
 % CantonS recording from Stern (2014)
-load('dat/PS_20130625111709_ch10.mat'); 
+load('dat/PS_20130625111709_ch3.mat')
 % hand-annotated pulse times for that recording from Kyriacou et al. (2017)
-load('dat/PS_20130625111709_ch10manual.mat', 'pulseTimes'); 
+load('dat/PS_20130625111709_ch3manual.mat', 'pulseTimes')
 
 % cut recording to the part that is hand-annotated and shorten to speed up
 % processing for this demo
-minPulseTime = 30;%s
-maxPulseTime = 120;%s or max(pulseTimes)
+minPulseTime = 180;%s
+maxPulseTime = 270;%max(pulseTimes);
 pulseTimes(pulseTimes<minPulseTime | pulseTimes>maxPulseTime)=[];
 pulseTimesManual = pulseTimes-minPulseTime;
 
@@ -19,18 +19,20 @@ channels = size(recording, 2); % recording is time x channels
 
 %% plot raw data
 T = (1:size(recording,1))/Fs;
-subplot(311)
+clf
+subplot(3,1,1:2)
 plot(T, recording)
+hold on
+plot(pulseTimesManual, ones(size(pulseTimesManual))/5+0.05, '.', 'MarkerSize',12)
 xlabel('time [ms]')
 ylabel('voltage [V]')
+title('recording trace with manually annotated pulses')
 axis('tight')
 drawnow
 
-%% process each channel - detect sine and pulse
-for chn = 1:channels
-   [sInf(chn).nLevel, sInf(chn).winSine, sInf(chn).pulseInfo, sInf(chn).pulseInfo2, sInf(chn).pcndInfo] = ...
-      segmentSong(recording(:,chn), 'params.m');
-end
+%% process recording - detect sine and pulse
+[sInf(chn).nLevel, sInf(chn).winSine, sInf(chn).pulseInfo, sInf(chn).pulseInfo2, sInf(chn).pcndInfo] = ...
+   segmentSong(recording(:,chn), 'params.m');
 
 %% post process
 % automatically identify recording of duration `bufferLen` samples that does not
