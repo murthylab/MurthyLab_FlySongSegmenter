@@ -2,23 +2,17 @@ function MergedInTimeHarmonics = SineSegmenter(data, ...
     SinesFromMultiTaper, Fs, dT, dS, sine_low_freq, sine_high_freq, ...
     sine_range_percent)
 %input ssf and expected min and max for sine song fundamental frequency
-
 % output is inRangeEvents giving all events deemed legitimate sine song
 % and lengthTable which gives start, finish, and lengths of all sine song
-
 % user enters min and max value for fundamental frequency
-
 % events should be a 2 column matrix (ie, if lengthfinder is run immediately
 % after MultiTaperFTest, events will be ans.events)
-
 %other potential user defined variables -- These have been moved to
 %FlySongSegmenter
-
 %search within ± this percent to determine whether consecutive events are
 %continuous sine
 %sine_range_percent = 0.2;
 %discard_less_n_steps = 3;
-
 % culling by length now done in WinnowSine
 
 

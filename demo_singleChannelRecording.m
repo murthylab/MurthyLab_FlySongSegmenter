@@ -70,7 +70,7 @@ linkaxes(gcas, 'x')
 % same pulse in the recording with a jitte of `tolerance` seconds
 tolerance = 5/1000;%s
 [confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance);
-confMatNorm = confMat./sum(confMat,1);
+confMatNorm = bsxfun(@times, confMat, 1./sum(confMat,1));
 
 fprintf('\n')
 fprintf('Detected %d/%d pulses:\n', sum(eventMat(:,2)==1), sum(eventMat(:,1)==1))
