@@ -36,6 +36,7 @@ plot(T, oneSong)
 hold on
 plot(pulseTimesAutomatic, ones(size(pulseTimesAutomatic))/5,'.','MarkerSize', 12)
 plot(pulseTimesManual, ones(size(pulseTimesManual))/5+0.05, '.', 'MarkerSize',12)
+set(gca,'YLim', [-0.4 0.4], 'YTick', [0.2 0.25], 'YTickLabel', {'automatic', 'manual'})
 
 subplot(313)
 plot(T, bInf.Mask);
