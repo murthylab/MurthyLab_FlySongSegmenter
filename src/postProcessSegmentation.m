@@ -309,8 +309,9 @@ wInf = combineSineSong(sInf,pInf,wInf,blkP,bInf.Mask);
 bInf = finalizeBoutInfo(pInf, wInf, bInf);
 
 % finalize everything
-Song = int16(pInf.Song*dataScalingFactor);
-pInf.pSec = int16(pInf.pSec*dataScalingFactor);
+dataScalingFactorForSave = 1000;
+Song = int16(pInf.Song*dataScalingFactorForSave);
+pInf.pSec = int16(pInf.pSec*dataScalingFactorForSave);
 pInf = rmfield(pInf, {'Song'; 'ampR'; 'exSong'});
 wInf = rmfield(wInf, {'nAmp'; 'bSin'});
 end
