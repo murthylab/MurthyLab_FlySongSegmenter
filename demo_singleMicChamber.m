@@ -19,6 +19,7 @@ channels = size(recording, 2); % recording is time x channels
 
 %% plot raw data
 T = (1:size(recording,1))/Fs;
+figure('Name', 'song segmentation')
 clf
 subplot(3,1,1:2)
 plot(T, recording)
@@ -69,7 +70,7 @@ linkaxes(gcas, 'x')
 % identify pulse times in the manual and automatic data correspoding to the
 % same pulse in the recording with a jitte of `tolerance` seconds
 tolerance = 5/1000;%s
-[confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance);
+[confMat, eventMat] = idPulses({pulseTimesManual, pulseTimesAutomatic}, tolerance);
 confMatNorm = bsxfun(@times, confMat, 1./sum(confMat,1));
 
 fprintf('\n')
@@ -80,11 +81,12 @@ fprintf('   - false positives %d (p=%1.2f of all automatically called pulses)\n'
 fprintf('   - true negatives %d (p=%1.2f, not meaningful in this context)\n',   sum(eventMat(:,1)==0 & eventMat(:,2)==0), sum(eventMat(:,1)==0 & eventMat(:,2)==0)./sum(eventMat(:,1)==0))
 
 
-%% pulse classification
+%% pulse type classification
 pulsesNorm = normalizePulses(double(pInf.pSec)/1000);           % normalize pulses
 pulseLabels = classifyPulses(pulsesNorm);       % classify pulses - 0=Pfast, 1=Pslow
 fprintf('%d/%d Pfast, %d/%d Pslow.\n', sum(pulseLabels==0), length(pulseLabels), sum(pulseLabels==1), length(pulseLabels))
 
+figure('Name', 'pulse type classification')
 clf
 subplot(311)
 T = (1:size(pInf.pSec,2))/10;%ms

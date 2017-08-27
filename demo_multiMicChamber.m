@@ -9,6 +9,7 @@ Fs = 10000;
 recording = double(data(6.4e5:9e5,1:9))./dataScalingFactor;
 channels = size(recording, 2);
 T = (1:size(recording,1))/Fs;
+figure('Name', 'song segmentation')
 clf
 subplot(311)
 plot(T, recording)
@@ -48,7 +49,7 @@ linkaxes(gcas, 'x')
 % identify pulse times in the manual and automatic data correspoding to the
 % same pulse in the recording with a jitte of `tolerance` seconds
 tolerance = 5/1000;%s
-[confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance);
+[confMat, eventMat] = idPulses({pulseTimesManual, pulseTimesAutomatic}, tolerance);
 confMatNorm = confMat./sum(confMat,1);
 
 fprintf('\n')
@@ -57,4 +58,28 @@ fprintf('   - true positives %d (p=%1.2f of all manually annotated pulses)\n',  
 fprintf('   - false negatives %d (p=%1.2f of all manually annotated pulses)\n', sum(eventMat(:,1)==1 & eventMat(:,2)==0), sum(eventMat(:,1)==1 & eventMat(:,2)==0)./sum(eventMat(:,1)==1))
 fprintf('   - false positives %d (p=%1.2f of all automatically called pulses)\n', sum(eventMat(:,1)==0 & eventMat(:,2)==1), sum(eventMat(:,1)==0 & eventMat(:,2)==1)./sum(eventMat(:,2)==1))
 fprintf('   - true negatives %d (p=%1.2f, not meaningful in this context)\n',   sum(eventMat(:,1)==0 & eventMat(:,2)==0), sum(eventMat(:,1)==0 & eventMat(:,2)==0)./sum(eventMat(:,1)==0))
+
+
+%% pulse type classification
+pulsesNorm = normalizePulses(double(pInf.pSec)/1000);           % normalize pulses
+pulseLabels = classifyPulses(pulsesNorm);       % classify pulses - 0=Pfast, 1=Pslow
+fprintf('%d/%d Pfast, %d/%d Pslow.\n', sum(pulseLabels==0), length(pulseLabels), sum(pulseLabels==1), length(pulseLabels))
+
+figure('Name', 'pulse type classification')
+clf
+subplot(311)
+T = (1:size(pInf.pSec,2))/10;%ms
+plot(T, double(pInf.pSec')/1000, 'Color', [0 0 0 0.2])
+title('raw pulses')
+subplot(312)
+plot(T, pulsesNorm', 'Color', [0 0 0 0.2])
+title('normalized pulses')
+subplot(313)
+hF = plot(T, pulsesNorm(pulseLabels==1,:)', 'Color', [1 0 0 0.2]);
+hold on
+hS = plot(T, pulsesNorm(pulseLabels==0,:)', 'Color', [0 0 0 0.2]);
+hL = legend([hF(1) hS(1)], {' P_{fast} (red)', 'P_{slow} (black)'}, 'Box', 'off');
+title('labeled pulses')
+axis(gcas, 'tight')
+set(gcas, 'Box', 'off', 'Color', 'none')
 
