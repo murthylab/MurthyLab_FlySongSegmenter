@@ -2,7 +2,7 @@ Murthy lab version of the Flysongsegmenter ([Arthur et al., 2013][1]).
 The [original code][2] was modified by Pip Coen ([Coen et al., 2015][3]).
 Now includes a [pulse type classifier][7].
 
-See `demo_singleMicChamber.m` and `demo_multiMicChamber.m` for usage and comparison with hand-annotated song data. `demo_manualAnnotation.m` shows how to start the [manual segmentater][6].
+See `demo_singleMicChamber.m` and `demo_multiMicChamber.m` for usage and comparison with hand-annotated song data. `demo_manualAnnotation.m` shows how to start the [manual segmenter][6].
 
 The song for the single-mic demo is a recording from the data supplement of [Stern (2014)][4]. The hand-annotation for that song comes from the supplemental material of [Kyriacou et al. (2017)][5]. The multi-mic demo uses an unpublished recording of _Drosophila melanogaster_ and was hand-annotated using the [manual segmenter][6].
 
