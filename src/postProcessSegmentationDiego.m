@@ -300,6 +300,8 @@ function [detM, wc, c2SR] = findUniPul(sInf, oneSong)
 % distances within 5:12 ms are evaluated to find the center
 sampLength = length(oneSong);
 fieldName = 'pulseInfo2'; % can only use pulseInfo2 since `pcndInfo` and `pulseInfo` miss `c2SR`
+tempWC = cell(length(sInf),1);
+tempc2SR = cell(length(sInf),1);
 for i = 1:length(sInf)
    if isfield(sInf(i).(fieldName), 'scmx') % removing scmx
       sInf(i).(fieldName) = rmfield(sInf(i).(fieldName), 'scmx');

@@ -339,6 +339,8 @@ for i = 1:length(sInf)
       sInf(i).pulseInfo2 = rmfield(sInf(i).pulseInfo2, 'scmx');
    end
 end
+tempWC = cell(length(sInf),1);
+tempc2SR = cell(length(sInf),1);
 for i = 1:length(sInf)
    if ~isfield(sInf(i).pulseInfo2, 'wc'); continue; end
    tempWC{i,1} = sInf(i).pulseInfo2.wc(sInf(i).pulseInfo2.wc>0);
