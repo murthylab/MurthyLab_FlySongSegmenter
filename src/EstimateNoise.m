@@ -2,7 +2,7 @@ function noise = EstimateNoise(xsong,ssf,param,low_freq_cutoff,high_freq_cutoff)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%Function runs MultiTaperFTest (multitaper spectral analysis) on recording
 %%Finds putative noise by fitting a mixture model to the distribution of
-%%power values (A) and taking the lowest mean (±var) as noise
+%%power values (A) and taking the lowest mean (Â±var) as noise
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 warning('off','stats:gmdistribution:FailedToConverge')
@@ -11,13 +11,14 @@ low_freq_index = find(ssf.f>param.low_freq_cutoff,1,'first');
 high_freq_index = find(ssf.f<param.high_freq_cutoff,1,'last');
 
 %Test range of gmdistribution.fit parameters
-AIC=inf*zeros(1,6);
-obj=cell(1,6);
+Nmix = 10; % number of mixture components to test
+AIC=nan(1,Nmix); % previous inf*zero equals NaN; hard-coded size 1x6 here conflicted with k=1:10 in the following loop
+obj=cell(1,Nmix);
 % sum 'power' over frequencies - yields envelope
 % shouldn't we take the log to be more robust to outliers????
 A_sums = sum(abs(ssf.A(low_freq_index:high_freq_index,:)));
 
-for k=1:10
+for k=1:Nmix
    try % prevent failure in case of "ill-conditioned covariance matrices"
       obj{k}=gmdistribution.fit(A_sums',k);
       if obj{k}.Converged == 1 % keep AIC only for those that converged
