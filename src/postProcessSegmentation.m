@@ -25,15 +25,15 @@ end
 % load pulse models
 load pulseModels;
 if strfind(pulseModelName, 'NM91')
-   pModIdx = cellfun(@(x) strcmp('NM91', x), {pMod.fStr}');
+   pModIdx = cellfun(@(x) strcmpi('NM91', x), {pMod.fStr}');
 else
-   pModIdx = cellfun(@(x) strcmp(pulseModelName, x), {pMod.fStr}');
+   pModIdx = cellfun(@(x) strcmpi(pulseModelName, x), {pMod.fStr}');
 end
 if any(pModIdx)
-   pMod = pMod(pModIdx);
+   pMod = pMod(find(pModIdx, 1));
 else
    warning('did not find pulse model matching "%s". defaulting to NM91.', pulseModelName)
-   pMod = pMod(cellfun(@(x) strcmp('NM91', x), {pMod.fStr}'));
+   pMod = pMod(cellfun(@(x) strcmpi('NM91', x), {pMod.fStr}'));
 end
 
 % estimate noise level
@@ -206,9 +206,12 @@ pInfTmp = pInf;
 pul2rem(pInf.pLik < -3 | (pInfTmp.proxSng>800 & pInfTmp.ampR <5) | ...
    pInfTmp.hpWi<0.5 | pInfTmp.hpWi> 4 |  pInfTmp.c2SR < 2)=1;
 [pInfTmp] = remBadPul(pInf, pul2rem);
-[~,pInfTmp.pLik] = fitPulse2GivenModel(pInfTmp.pSec, pMod);
-pInfTmp = findSongNearPulse(pInfTmp,wInf);
-pInfTmp.pLik = pInfTmp.pLik.LLR_best;
+
+if numel(pInfTmp.pSec)>0
+   [~,pInfTmp.pLik] = fitPulse2GivenModel(pInfTmp.pSec, pMod);
+   pInfTmp = findSongNearPulse(pInfTmp,wInf);
+   pInfTmp.pLik = pInfTmp.pLik.LLR_best;
+end
 moveOn = 0;
 while moveOn ==0
    moveOn = 1;
