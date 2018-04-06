@@ -1,4 +1,4 @@
-function	[sInf, pInf, wInf, bInf, Song] = postProcessSegmentationDiego(sInf, data, oneSong, mNoiseSamp, dataScalingFactor, lastSampleToProcess, pulseModelName, pulseModels)
+function	[sInf, pInf, wInf, bInf, Song, dInf] = postProcessSegmentationDiego(sInf, data, oneSong, mNoiseSamp, dataScalingFactor, lastSampleToProcess, pulseModelName, pulseModels, parameterFile)
 %[sInf, pInf, wInf, bInf, Song] = postProcessSegmentation(sInf, data, oneSong, mNoiseSamp, dataScalingFactor, lastSampleToProcess, pulseModelName)
 
 % OLD SIGNATURE: function [sInf, pInf, wInf, bInf, Song, dInf] = postProcessSegmentationDiego(sInf, oneSong, mNoiseSamp, data)
@@ -31,6 +31,9 @@ end
 if ~exist('pulseModelName','var') || isempty(pulseModelName)
    pulseModelName = ''; % default to empty - will use NM91 model
 end
+if ~exist('parameterFile','var') || isempty(parameterFile)
+   parameterFile = 'postProcessSegmentationDiego_Parameters'; % default to empty - will use NM91 model
+end
 
 
 % ******************************************************************************
@@ -38,7 +41,7 @@ end
 % ******************************************************************************
 % TODO: specify name as parameter...
 global p
-p = postProcessSegmentationDiego_Parameters;
+p = eval(parameterFile);
 % ******************************************************************************
 % *********** Collecting main pulse and sine parameters (pInf, wInf) ***********
 % ******************************************************************************
@@ -66,15 +69,15 @@ else
 end
 
 if strfind(pulseModelName, 'NM91')
-   pModIdx = cellfun(@(x) strcmp('NM91', x), {pMod.fStr}');
+   pModIdx = cellfun(@(x) strcmpi('NM91', x), {pMod.fStr}');
 else
-   pModIdx = cellfun(@(x) strcmp(pulseModelName, x), {pMod.fStr}');
+   pModIdx = cellfun(@(x) strcmpi(pulseModelName, x), {pMod.fStr}');
 end
 if any(pModIdx)
    pMod = pMod(pModIdx);
 else
    warning('did not find pulse model matching "%s". defaulting to NM91.', pulseModelName)
-   pMod = pMod(cellfun(@(x) strcmp('NM91', x), {pMod.fStr}'));
+   pMod = pMod(cellfun(@(x) strcmpi('NM91', x), {pMod.fStr}'));
 end
 
 
@@ -278,14 +281,14 @@ wInf = combineSineSong(pInf, wInf, 1, bInf.Mask); % fuse and filter (using mask)
 
 % generates extra bout information (bInf.Bout, bInf.bRng, bInf.Type)
 bInf = finalizeBoutInfo(pInf, wInf, bInf);
-Song = int16(pInf.Song*1000);
-pInf.pSec = int16(pInf.pSec*1000);
+Song = pInf.Song;%int16(pInf.Song*1000);
+% pInf.pSec = int16(pInf.pSec*1000);
 pInf = rmfield(pInf, {'Song'; 'exSong'; 'boutTag'; 'ppBout'; 'boutLikMax'; 'boutLikMin'; 'stEn'});
 wInf = rmfield(wInf, {'nAmp'; 'bSin'});
 % storing pulses prior to filtering for offline evaluation
 % REMOVE?
 dInf = rmfield(dInf, {'Song'; 'exSong'; 'boutTag'; 'ppBout'; 'boutLikMax'; 'boutLikMin'; 'stEn'});
-dInf.pSec = int16(dInf.pSec*1000);
+% dInf.pSec = int16(dInf.pSec*1000);
 
 fprintf(['Final number of : pulses ', num2str(length(pInf.wc)), ' , sine epocs ', num2str(size(wInf.stEn, 1)),...
    ' , bouts found ', num2str(size(bInf.stEn, 1)), ' \n\n'])
@@ -792,7 +795,12 @@ for i = 1:size(pSec, 1)
       pInf.hpWi(i, 1) = getHPWPerPulse(testPul);
    else
       testPul = testPul*sign(corFact);
-      pInf.hpWi(i, 1) = getHPWPerPulse(testPul);
+      try
+         pInf.hpWi(i, 1) = getHPWPerPulse(testPul);
+      catch ME
+         disp(ME.getReport)
+         pInf.hpWi(i,1) = length(testPul);
+      end
    end
 end
 end
