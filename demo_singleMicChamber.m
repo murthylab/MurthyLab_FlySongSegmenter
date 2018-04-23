@@ -61,7 +61,7 @@ set(gca,'YLim', [-0.4 0.4], 'YTick', [0.2 0.25], 'YTickLabel', {'automatic', 'ma
 subplot(313)
 plot(T, bInf.Mask, 'k');
 axis('tight')
-set(gca, 'YTick', 0:2, 'YTickLabel', {'silence/noise', 'sine','pulse'})
+set(gca, 'YTick', 0:2, 'YTickLabel', {'silence/noise', 'pulse', 'sine'})
 xlabel('time [s]')
 set(gcas, 'Box','off','Color','none','TickDir','out')
 linkaxes(gcas, 'x')
@@ -70,7 +70,7 @@ linkaxes(gcas, 'x')
 % identify pulse times in the manual and automatic data correspoding to the
 % same pulse in the recording with a jitte of `tolerance` seconds
 tolerance = 5/1000;%s
-[confMat, eventMat] = idPulses({pulseTimesManual, pulseTimesAutomatic}, tolerance);
+[confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance);
 confMatNorm = bsxfun(@times, confMat, 1./sum(confMat,1));
 
 fprintf('\n')
