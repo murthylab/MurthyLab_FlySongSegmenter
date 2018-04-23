@@ -49,7 +49,7 @@ linkaxes(gcas, 'x')
 % identify pulse times in the manual and automatic data correspoding to the
 % same pulse in the recording with a jitte of `tolerance` seconds
 tolerance = 5/1000;%s
-[confMat, eventMat] = idPulses({pulseTimesManual, pulseTimesAutomatic}, tolerance);
+[confMat, eventMat] = idPulses(pulseTimesManual, pulseTimesAutomatic, tolerance);
 confMatNorm = confMat./sum(confMat,1);
 
 fprintf('\n')
