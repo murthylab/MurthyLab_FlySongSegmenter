@@ -1,5 +1,5 @@
 Murthy lab version of the Flysongsegmenter ([Arthur et al., 2013][1]).
-The [original code][2] was modified by Pip Coen ([Coen et al., 2015][3]).
+The [original code][2] was modified by Pip Coen ([Coen et al., 2014][3]).
 Now includes a [pulse type classifier][7].
 
 See `demo_singleMicChamber.m` and `demo_multiMicChamber.m` for usage and comparison with hand-annotated song data. `demo_manualAnnotation.m` shows how to start the [manual segmenter][6].
