@@ -1,4 +1,4 @@
-Murthy lab version of the Flysongsegmenter ([Arthur et al., 2013][1]).
+Murthy lab version of the FlySongSegmenter ([Arthur et al., 2013][1]).
 The [original code][2] was modified by Pip Coen ([Coen et al., 2014][3]).
 Now includes a [pulse type classifier][7].
 
