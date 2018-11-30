@@ -548,7 +548,7 @@ end
 stEn(diff(stEn, [], 2)<700,:) = [];  % merge IBIs<70ms
 % assemble bouts to delete
 dIdx = [];  % will contain idx of bouts to delete
-for i = 1%:size(stEn,1)
+for i = 1:size(stEn,1)
    bRng = stEn(i,1):stEn(i,2);
    nEvs = [sum(sBouts(bRng)==10), (sum(sBouts(bRng)==2))/1000]; % count number pulses (`==10`) and milliseconds of sine song (`==2`)
    pIdx = pInf.wc>=bRng(1)&pInf.wc<=bRng(end);     % idx to get song trace
