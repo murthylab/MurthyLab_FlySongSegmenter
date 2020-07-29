@@ -1,4 +1,4 @@
-function FlySongSegmenterByHand_JL(data, Fs, varargin)
+function FlySongSegmenterByHand_wingAngle(data, Fs, varargin)
 % modified from FlySongSegmenterByHand.m
 % @junyu 
 % 1) allows annotating two types of pulses
